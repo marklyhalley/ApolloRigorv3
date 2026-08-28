@@ -4,6 +4,8 @@
 // mesmo navegador. Trocas em outra aba chegam via evento 'storage'; trocas na
 // mesma aba via evento customizado 'apollo-pedidos'.
 import { useEffect, useState, useCallback } from 'react';
+import { PRODUTOS_INIT } from '../constants';
+import { PERFIS } from '../site/auth';
 
 const KEY = 'apollo-pedidos';
 const EVT = 'apollo-pedidos';
@@ -115,4 +117,82 @@ export function useContagemNovos() {
 
 export function useAcao() {
   return useCallback((id, status, nota, extra) => atualizarStatus(id, status, nota, extra), []);
+}
+
+// ── Semente de demonstração ──────────────────────────────────────────────────
+// Numa primeira visita o store nasce vazio: o Portal do noivo (dado do sistema,
+// em constants.js) aparece cheio, mas "Meus pedidos" fica sem nada. Para a demo
+// bater, semeamos alguns pedidos já ligados ao cliente exemplo — os dados do
+// cliente saem de PERFIS.cliente (auth.js), a mesma fonte da sessão. Roda só uma
+// vez: se o usuário apagar os pedidos depois, não voltam (a chave passa a
+// existir com [] e não é mais nula).
+const DIA = 86_400_000;
+const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+
+function pedidosDemo() {
+  const agora = Date.now();
+  const { nome, email, tel, documento } = PERFIS.cliente;
+  const cliente = { nome, email, tel, documento };
+  const prod = (id) => PRODUTOS_INIT.find((p) => p.id === id) || {};
+  const smoking = prod(2);
+  const sapato = prod(8);
+
+  return [
+    {
+      id: 'p-demo-smoking',
+      protocolo: 'AR-GF7K2',
+      criadoEm: agora - 9 * DIA,
+      status: 'Aprovado',
+      transId: null,
+      motivoRecusa: '',
+      tipo: 'locacao_avulsa',
+      cliente,
+      produtoId: smoking.id,
+      produtoNome: smoking.nome,
+      foto: smoking.foto,
+      cor: smoking.cor,
+      tam: 'M',
+      retirada: iso(agora + 12 * DIA),
+      devolucao: iso(agora + 18 * DIA),
+      valorEstimado: smoking.aluguel,
+      observacoes: 'Para o jantar de véspera. Combinar a prova numa quinta à noite, se possível.',
+      historico: [
+        { status: 'Novo', em: agora - 9 * DIA, nota: 'Pedido recebido pelo site.' },
+        { status: 'Em análise', em: agora - 8 * DIA, nota: 'Em triagem pelo ateliê.' },
+        { status: 'Aprovado', em: agora - 7 * DIA, nota: 'Disponibilidade e datas confirmadas. A equipe entra em contato para a prova.' },
+      ],
+    },
+    {
+      id: 'p-demo-sapato',
+      protocolo: 'AR-GF9M4',
+      criadoEm: agora - 2 * DIA,
+      status: 'Novo',
+      transId: null,
+      motivoRecusa: '',
+      tipo: 'venda',
+      cliente,
+      produtoId: sapato.id,
+      produtoNome: sapato.nome,
+      foto: sapato.foto,
+      cor: sapato.cor,
+      tam: '42',
+      retirada: null,
+      devolucao: null,
+      valorEstimado: sapato.venda,
+      observacoes: 'Quero comprar para ficar, não devolver.',
+      historico: [
+        { status: 'Novo', em: agora - 2 * DIA, nota: 'Pedido recebido pelo site.' },
+      ],
+    },
+  ];
+}
+
+// Chamada uma vez no start (main.jsx). Só semeia se o store nunca foi tocado.
+export function seedPedidosDemo() {
+  try {
+    if (localStorage.getItem(KEY) !== null) return;
+    write(pedidosDemo());
+  } catch {
+    /* storage indisponível — segue sem semente */
+  }
 }
