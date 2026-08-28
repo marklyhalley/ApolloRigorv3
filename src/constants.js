@@ -118,7 +118,7 @@ export const PRODUTOS_INIT = [
     foto: `${UNS}-1507679799987-c73779587ccf?w=480&h=640&fit=crop&q=80`,
     variantes: [{ tam: 'PP', qtd: 1 }, { tam: 'P', qtd: 2 }, { tam: 'M', qtd: 4 }, { tam: 'G', qtd: 2 }, { tam: 'GG', qtd: 0 }] },
   { id: 2, nome: 'Smoking Black Tie',       categoria: 'Terno',   colecao: 'Black Tie',      tecido: 'Lã Fria',   cor: 'Preto',         linha: 'Premium',      aluguel: 280, venda: 1200,
-    foto: `${UNS}-1598808503746-f34cfaefab78?w=480&h=640&fit=crop&q=80`,
+    foto: 'https://mrmaximus.com.br/cdn/shop/files/Sb388a5abe7c4486f92913d127ec0b085B.webp?v=1754997603&width=800',
     variantes: [{ tam: 'P', qtd: 1 }, { tam: 'M', qtd: 2 }, { tam: 'G', qtd: 2 }, { tam: 'GG', qtd: 1 }] },
   { id: 3, nome: 'Terno Casamento Marfim',  categoria: 'Terno',   colecao: 'Noivos Premium', tecido: 'Linho',     cor: 'Off-White',     linha: 'Premium',      aluguel: 220, venda: 1100,
     foto: `${UNS}-1583864697784-a0efc8379f70?w=480&h=640&fit=crop&q=80`,
@@ -320,7 +320,7 @@ export const TRANS_INIT = [
     dataFechamento: '2026-07-15', limiteComparecimento: '2026-09-10',
     trajeConfidencial: true,
     // senha que o casal usa para revelar o traje do noivo no portal (Área do cliente)
-    senhaRevelacao: 'marina2026',
+    senhaRevelacao: 'FiapNext26',
     // detalhamento da padronização por papel — mostrado nos cards do Portal do noivo
     padronizacao: {
       Noivo:    { corte: 'Slim · 2 botões', colete: 'Com colete', gravata: 'Laço em seda preta', lenco: 'Lenço dourado', nota: 'Acabamento cerimônia com vivo dourado na lapela.' },

@@ -3,8 +3,8 @@ import { Section, Wrap, Eyebrow, H2, Lead, Button, Field, TextInput, Tape, ink, 
 import { useSessao, sair, pacoteDaSessao, atualizarSessao } from './auth';
 import { listPedidos, TIPO_LABEL } from '../store/pedidos';
 import { emailOk, telOk } from './siteData';
-import { fmt } from '../constants';
-import PortalNoivo from './PortalNoivo';
+import { fmt, fmtDate } from '../constants';
+import { comparecimentoPacote } from '../logic';
 import RastreioPedido from './RastreioPedido';
 
 const mono = 'var(--font-mono)';
@@ -17,13 +17,27 @@ const STATUS_COR = {
   Recusado: 'var(--status-red-fg)',
 };
 
-// Área do cliente (perfil "noivo" de exemplo). Abas: Portal do noivo, Pedidos
-// avulsos e Meus dados, além dos atalhos para abrir novos pedidos.
-const ABAS_VALIDAS = ['portal', 'pedidos', 'perfil'];
+// cartão-linha clicável da lista de pedidos
+function RowShell({ onClick, children }) {
+  return (
+    <button onClick={onClick} style={{
+      display: 'block', textAlign: 'left', width: '100%', cursor: 'pointer',
+      border: `1px solid ${line}`, background: card, padding: '16px 18px', fontFamily: 'var(--font-sans)',
+    }}>
+      {children}
+    </button>
+  );
+}
+
+// Área do cliente (perfil "noivo" de exemplo). Abas: Pedidos (avulsos + o pacote
+// padronizado) e Meus dados. O Portal do noivo não é mais aba: abre ao clicar no
+// pedido do pacote de casamento.
+const ABAS_VALIDAS = ['pedidos', 'perfil'];
 
 export default function Conta({ go, arg }) {
   const sessao = useSessao();
-  const [aba, setAba] = useState(ABAS_VALIDAS.includes(arg) ? arg : 'portal');
+  // 'portal' era uma aba antiga — cai em 'pedidos'
+  const [aba, setAba] = useState(ABAS_VALIDAS.includes(arg) ? arg : 'pedidos');
 
   useEffect(() => { window.scrollTo({ top: 0 }); }, [aba]);
   useEffect(() => {
@@ -33,16 +47,15 @@ export default function Conta({ go, arg }) {
   if (!sessao || sessao.tipo !== 'cliente') return null;
 
   const pacote = pacoteDaSessao(sessao);
-  // Pedidos avulsos = locação/compra individuais feitas pelo site. O pacote de
-  // casamento não entra aqui — ele vive no Portal do noivo.
+  // Pedidos avulsos (locação/compra individuais feitas pelo site).
   const meusPedidos = listPedidos().filter(
     (p) => (p.cliente?.email || '').toLowerCase() === sessao.email.toLowerCase()
       && p.tipo !== 'locacao_padronizada',
   );
 
+  const totalPedidos = meusPedidos.length + (pacote ? 1 : 0);
   const abas = [
-    { key: 'portal', label: 'Portal do noivo' },
-    { key: 'pedidos', label: `Pedidos avulsos${meusPedidos.length ? ` · ${meusPedidos.length}` : ''}` },
+    { key: 'pedidos', label: `Pedidos${totalPedidos ? ` · ${totalPedidos}` : ''}` },
     { key: 'perfil', label: 'Meus dados' },
   ];
 
@@ -67,7 +80,7 @@ export default function Conta({ go, arg }) {
         </div>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 22 }}>
-          <Button onClick={() => go('colecao')}>Abrir pedido avulso</Button>
+          <Button onClick={() => go('colecao')}>Abrir novo pedido</Button>
           <Button variant="ghost" onClick={() => go('pacote')}>Montar pacote de casamento</Button>
         </div>
 
@@ -85,13 +98,7 @@ export default function Conta({ go, arg }) {
           ))}
         </div>
 
-        {aba === 'portal' && (
-          pacote
-            ? <PortalNoivo pacote={pacote} />
-            : <p style={{ fontSize: 13, color: sub }}>Nenhum pacote de casamento vinculado a esta conta ainda.</p>
-        )}
-
-        {aba === 'pedidos' && <MeusPedidos pedidos={meusPedidos} go={go} />}
+        {aba === 'pedidos' && <MeusPedidos pedidos={meusPedidos} pacote={pacote} go={go} />}
 
         {aba === 'perfil' && <EditarPerfil sessao={sessao} />}
       </Wrap>
@@ -177,25 +184,27 @@ function EditarPerfil({ sessao }) {
   );
 }
 
-function MeusPedidos({ pedidos, go }) {
+// Aba "Pedidos": lista o pacote padronizado (se houver) + os pedidos avulsos.
+// Clicar no pacote leva à página do casamento (fora do perfil); clicar num
+// avulso abre o rastreio embutido aqui.
+function MeusPedidos({ pedidos, pacote, go }) {
   const [sel, setSel] = useState(null);
 
-  // pedido aberto → rastreio embutido, sem sair da área do cliente
   const aberto = sel && pedidos.find((p) => p.id === sel);
   if (aberto) {
     return <RastreioPedido pedido={aberto} onVoltar={() => setSel(null)} />;
   }
 
-  if (pedidos.length === 0) {
+  if (!pacote && pedidos.length === 0) {
     return (
       <div style={{ border: `1px solid ${line}`, background: card }}>
         <Tape height={8} style={{ opacity: 0.5 }} />
         <div style={{ padding: '28px 24px' }}>
           <p style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 500, color: ink }}>
-            Você ainda não tem pedidos avulsos.
+            Você ainda não tem pedidos.
           </p>
           <p style={{ margin: '8px 0 18px', fontSize: 13.5, color: sub, lineHeight: 1.6, maxWidth: '52ch' }}>
-            Locações e compras individuais feitas pelo site aparecem aqui com o protocolo e o andamento. Clique num pedido para ver o rastreio.
+            Locações, compras e o pacote de casamento aparecem aqui. Clique num pedido para ver o andamento.
           </p>
           <Button onClick={() => go('colecao')}>Ver a coleção</Button>
         </div>
@@ -205,23 +214,46 @@ function MeusPedidos({ pedidos, go }) {
 
   return (
     <div style={{ display: 'grid', gap: 12 }}>
-      {pedidos.map((p) => (
-        <button key={p.id} onClick={() => setSel(p.id)} style={{
-          display: 'block', textAlign: 'left', width: '100%', cursor: 'pointer',
-          border: `1px solid ${line}`, background: card, padding: '16px 18px', fontFamily: 'var(--font-sans)',
-        }}>
+      {pacote && (
+        <RowShell onClick={() => go('casamento')}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
             <div>
-              <p style={{ margin: 0, fontFamily: mono, fontSize: 15, fontWeight: 600, color: brass, letterSpacing: '0.06em' }}>
-                {p.protocolo}
+              <p style={{ margin: 0, fontFamily: mono, fontSize: 12, fontWeight: 700, color: brass, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                Pacote
               </p>
               <p style={{ margin: '6px 0 0', fontSize: 13, color: ink }}>
-                {TIPO_LABEL[p.tipo]}
-                {p.produtoNome ? ` · ${p.produtoNome}${p.tam ? ` · tam. ${p.tam}` : ''}` : ''}
-                {p.noivos ? ` · ${p.noivos}` : ''}
+                {TIPO_LABEL.locacao_padronizada} · {pacote.noivos}
               </p>
               <p style={{ margin: '4px 0 0', fontSize: 11.5, color: muted, fontFamily: mono }}>
-                Enviado em {dataHora(p.criadoEm)}
+                Evento em {fmtDate(pacote.dataEvento)} · abrir a página do casamento →
+              </p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--status-green-fg)', fontFamily: mono, letterSpacing: '0.06em' }}>
+                {(() => { const { compareceram, total } = comparecimentoPacote(pacote); return `${compareceram}/${total} retiraram`; })()}
+              </span>
+              {pacote.valor > 0 && (
+                <p style={{ margin: '6px 0 0', fontFamily: mono, fontSize: 13, color: ink }}>R$ {fmt(pacote.valor)}</p>
+              )}
+            </div>
+          </div>
+        </RowShell>
+      )}
+
+      {pedidos.map((p) => (
+        <RowShell key={p.id} onClick={() => setSel(p.id)}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ margin: 0, fontFamily: mono, fontSize: 12, fontWeight: 700, color: brass, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                {TIPO_LABEL[p.tipo]}
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: 13, color: ink }}>
+                {p.produtoNome
+                  ? `${p.produtoNome}${p.tam ? ` · tam. ${p.tam}` : ''}`
+                  : p.noivos || 'Pedido'}
+              </p>
+              <p style={{ margin: '4px 0 0', fontSize: 11.5, color: muted, fontFamily: mono }}>
+                {p.protocolo} · enviado em {dataHora(p.criadoEm)}
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -233,7 +265,7 @@ function MeusPedidos({ pedidos, go }) {
               )}
             </div>
           </div>
-        </button>
+        </RowShell>
       ))}
     </div>
   );

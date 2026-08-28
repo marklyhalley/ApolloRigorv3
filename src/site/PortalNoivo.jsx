@@ -42,14 +42,7 @@ function casaFiltro(i, filtro) {
   return true;
 }
 
-function chaveRevelado(pacote) {
-  return `apollo-traje-${pacote.id ?? pacote.noivos}`;
-}
-function leRevelado(pacote) {
-  try { return sessionStorage.getItem(chaveRevelado(pacote)) === '1'; } catch { return false; }
-}
-
-export default function PortalNoivo({ pacote }) {
+export default function PortalNoivo({ pacote, onVoltar }) {
   const integrantes = pacote.integrantes || [];
   const { total, compareceram, faltam } = comparecimentoPacote(pacote);
   const { pagos, aPagar } = pagamentosPacote(pacote);
@@ -57,13 +50,12 @@ export default function PortalNoivo({ pacote }) {
   const categorias = categoriasDoGrupo(integrantes);
   const confidencial = !!pacote.trajeConfidencial;
 
-  const [revelado, setRevelado] = useState(() => leRevelado(pacote));
+  // Sempre começa oculto: o traje do noivo precisa ser revelado com a senha a
+  // cada visita ao portal (não fica lembrado no dispositivo).
+  const [revelado, setRevelado] = useState(false);
   const [filtro, setFiltro] = useState('todos');
 
-  const revelarTraje = () => {
-    setRevelado(true);
-    try { sessionStorage.setItem(chaveRevelado(pacote), '1'); } catch { /* ok */ }
-  };
+  const revelarTraje = () => setRevelado(true);
 
   const noivoOculto = confidencial && !revelado;
   const pctRetirada = total ? Math.round((compareceram / total) * 100) : 0;
@@ -71,6 +63,19 @@ export default function PortalNoivo({ pacote }) {
 
   return (
     <div>
+      {onVoltar && (
+        <button
+          onClick={onVoltar}
+          style={{
+            background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 0',
+            marginBottom: 18, fontFamily: mono, fontSize: 11, fontWeight: 600,
+            letterSpacing: '0.12em', textTransform: 'uppercase', color: sub,
+          }}
+        >
+          ← Voltar aos pedidos
+        </button>
+      )}
+
       {/* Cabeçalho do pacote */}
       <div style={{ border: `1px solid ${line}`, background: card }}>
         <Tape height={8} style={{ opacity: 0.5 }} />
@@ -322,7 +327,7 @@ function RevelarTraje({ revelado, senha, onRevelar }) {
   if (revelado) {
     return (
       <p style={{ margin: '16px 0 0', fontSize: 12, color: 'var(--status-green-fg)', fontFamily: mono }}>
-        ✓ Traje do noivo revelado neste dispositivo.
+        ✓ Traje do noivo revelado nesta visita — some ao sair do portal.
       </p>
     );
   }
