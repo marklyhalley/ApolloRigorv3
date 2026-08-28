@@ -113,3 +113,13 @@ body {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+
+/* ── Vitrine do cliente — colapsos responsivos ─────────────────────────── */
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .pedido-grid { grid-template-columns: 1fr !important; }
+  [data-produto-modal] { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 620px) {
+  .site-nav-links { display: none !important; }
+}

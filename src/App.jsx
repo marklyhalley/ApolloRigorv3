@@ -7,9 +7,12 @@ import Estoque   from './components/Estoque';
 import Locacoes  from './components/Locacoes';
 import Anuario   from './components/Anuario';
 import Ajustes   from './components/Ajustes';
+import Pedidos   from './components/Pedidos';
+import { useContagemNovos } from './store/pedidos';
 
 const NAV = [
   { key: 'dashboard', label: 'Dashboard',          sub: 'Painel executivo',            icon: '◇' },
+  { key: 'pedidos',   label: 'Pedidos',            sub: 'Solicitações do site',        icon: '✦' },
   { key: 'estoque',   label: 'Catálogo & Estoque', sub: 'Modelos e grade de tamanhos', icon: '▤' },
   { key: 'locacoes',  label: 'Vendas e Locações',  sub: 'Avulsa · Padronizada',        icon: '✎' },
   { key: 'anuario',   label: 'Anuário',            sub: 'Agenda e disponibilidade',    icon: '▦' },
@@ -24,6 +27,7 @@ export default function App() {
   const [produtos, setProdutos] = useState(PRODUTOS_INIT);
   const [trans,    setTrans]    = useState(TRANS_INIT);
   const [ajustes,  setAjustes]  = useState(AJUSTES_INIT);
+  const novos = useContagemNovos();
 
   const nav = NAV.find((n) => n.key === page);
   const idx = NAV.findIndex((n) => n.key === page);
@@ -69,8 +73,16 @@ export default function App() {
                 <span style={{ fontSize: 9, color: active ? C.gold : 'rgba(231,227,215,0.32)', width: 16, textAlign: 'center', ...MONO }}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <span style={{ fontSize: 12.5, fontWeight: active ? 600 : 500, color: active ? C.paper : 'rgba(231,227,215,0.8)', letterSpacing: '0.005em' }}>{label}</span>
+                <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                  <span style={{ fontSize: 12.5, fontWeight: active ? 600 : 500, color: active ? C.paper : 'rgba(231,227,215,0.8)', letterSpacing: '0.005em', display: 'flex', alignItems: 'center', gap: 7 }}>
+                    {label}
+                    {key === 'pedidos' && novos > 0 && (
+                      <span style={{
+                        fontSize: 9, fontWeight: 700, lineHeight: 1, padding: '3px 5px', borderRadius: 3,
+                        background: C.gold, color: C.accentInk, ...MONO,
+                      }}>{novos}</span>
+                    )}
+                  </span>
                   <span style={{ fontSize: 9.5, color: 'rgba(231,227,215,0.38)', marginTop: 2 }}>{sub}</span>
                 </span>
               </button>
@@ -79,7 +91,13 @@ export default function App() {
         </nav>
 
         <div style={{ padding: '15px 22px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <p style={{ fontSize: 9, color: 'rgba(231,227,215,0.3)', margin: 0, letterSpacing: '0.16em', ...MONO, textTransform: 'uppercase' }}>
+          <a href="/" style={{
+            fontSize: 9.5, color: 'rgba(231,227,215,0.5)', letterSpacing: '0.14em',
+            ...MONO, textTransform: 'uppercase', textDecoration: 'none',
+          }}>
+            ← Ver o site do cliente
+          </a>
+          <p style={{ fontSize: 9, color: 'rgba(231,227,215,0.3)', margin: '9px 0 0', letterSpacing: '0.16em', ...MONO, textTransform: 'uppercase' }}>
             Moda masculina & cerimônia
           </p>
         </div>
@@ -111,6 +129,7 @@ export default function App() {
 
         <main style={{ flex: 1, padding: '24px 30px', overflowY: 'auto' }}>
           {page === 'dashboard' && <Dashboard produtos={produtos} trans={trans} ajustes={ajustes} />}
+          {page === 'pedidos'   && <Pedidos trans={trans} setTrans={setTrans} />}
           {page === 'estoque'   && <Estoque produtos={produtos} setProdutos={setProdutos} trans={trans} ajustes={ajustes} />}
           {page === 'locacoes'  && (
             <Locacoes
