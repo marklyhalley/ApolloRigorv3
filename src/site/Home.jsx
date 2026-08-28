@@ -160,12 +160,12 @@ export default function Home({ go, openProduto, scrollTo }) {
               <p style={{ margin: '10px 0 0', fontSize: 13.5, lineHeight: 1.7, color: 'rgba(231,227,215,0.82)' }}>
                 {ATELIE.tel}<br />{ATELIE.email}
               </p>
-              <button onClick={() => go('acompanhar')} style={{
+              <button onClick={() => go('conta', 'pedidos')} style={{
                 marginTop: 14, background: 'transparent', border: '1px solid rgba(231,227,215,0.28)',
                 color: 'var(--sidebar-text)', padding: '9px 16px', borderRadius: 2, cursor: 'pointer',
                 fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
               }}>
-                Acompanhar pedido
+                Meus pedidos
               </button>
             </div>
           </div>

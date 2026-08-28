@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Section, Wrap, Eyebrow, H2, Lead, Button, ink, sub, line, brass, card } from './ui';
 import { TIPO_LABEL } from '../store/pedidos';
+import RastreioPedido from './RastreioPedido';
 
 const mono = "var(--font-mono)";
 
-// Tela de confirmação compartilhada pelos dois fluxos de pedido.
+// Tela de confirmação compartilhada pelos dois fluxos de pedido. O rastreio é
+// mostrado aqui mesmo (embutido) — não há mais tela "Acompanhar pedido".
 export default function Confirmacao({ pedido, go, resumo }) {
-  useEffect(() => { window.scrollTo({ top: 0 }); }, []);
+  const [rastreio, setRastreio] = useState(false);
+  useEffect(() => { window.scrollTo({ top: 0 }); }, [rastreio]);
+
   return (
     <Section>
       <Wrap narrow>
@@ -14,7 +18,8 @@ export default function Confirmacao({ pedido, go, resumo }) {
         <H2 style={{ marginTop: 14 }}>Recebemos seu pedido.</H2>
         <Lead style={{ marginTop: 16 }}>
           O ateliê vai confirmar disponibilidade e valores e entrar em contato por
-          e-mail e telefone. Guarde o protocolo para acompanhar o andamento.
+          e-mail e telefone. Guarde o protocolo para acompanhar o andamento — ele
+          também fica na sua área de cliente, em <b>Pedidos avulsos</b>.
         </Lead>
 
         <div style={{ margin: '28px 0', border: `1px solid ${line}`, background: card, padding: '20px 22px' }}>
@@ -26,9 +31,17 @@ export default function Confirmacao({ pedido, go, resumo }) {
         </div>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Button onClick={() => go('acompanhar', pedido.protocolo)}>Acompanhar pedido</Button>
+          <Button onClick={() => setRastreio((v) => !v)}>
+            {rastreio ? 'Ocultar acompanhamento' : 'Acompanhar pedido'}
+          </Button>
           <Button variant="ghost" onClick={() => go('home')}>Voltar ao início</Button>
         </div>
+
+        {rastreio && (
+          <div style={{ marginTop: 32 }}>
+            <RastreioPedido pedido={pedido} />
+          </div>
+        )}
       </Wrap>
     </Section>
   );

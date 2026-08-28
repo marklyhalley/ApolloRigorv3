@@ -4,7 +4,6 @@ import Home from './Home';
 import Colecao from './Colecao';
 import Pedido from './Pedido';
 import Pacote from './Pacote';
-import Acompanhar from './Acompanhar';
 import Entrar from './Entrar';
 import Conta from './Conta';
 import ProdutoModal from './ProdutoModal';
@@ -13,7 +12,7 @@ import { ScrollTape } from './ui';
 
 // hash <-> view. "como-funciona" e "atelie" são âncoras dentro da home.
 const ANCORAS = ['como-funciona', 'atelie'];
-const VIEWS = ['home', 'colecao', 'pedido', 'pacote', 'acompanhar', 'entrar', 'conta'];
+const VIEWS = ['home', 'colecao', 'pedido', 'pacote', 'entrar', 'conta'];
 
 function hashToState(hash) {
   const h = (hash || '').replace(/^#/, '');
@@ -67,7 +66,6 @@ export default function Site() {
           {view === 'colecao' && <Colecao openProduto={openProduto} foco={arg} />}
           {view === 'pedido' && <Pedido rascunho={rascunho} go={go} cliente={cliente} />}
           {view === 'pacote' && <Pacote go={go} cliente={cliente} />}
-          {view === 'acompanhar' && <Acompanhar protocoloInicial={arg} />}
           {view === 'entrar' && <Entrar go={go} />}
           {view === 'conta' && <Conta go={go} arg={arg} />}
         </main>

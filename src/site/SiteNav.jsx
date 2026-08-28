@@ -19,7 +19,6 @@ export default function SiteNav({ view, go }) {
   const links = [
     { key: 'colecao', label: 'Coleção' },
     { key: 'como-funciona', label: 'Como funciona' },
-    { key: 'acompanhar', label: 'Acompanhar pedido' },
   ];
 
   return (
@@ -61,14 +60,26 @@ export default function SiteNav({ view, go }) {
             ))}
           </div>
 
+          <ThemeToggle variant="minimal" />
+
+          <button onClick={() => go('pacote')} style={{
+            padding: '10px 18px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--gold)',
+            background: 'var(--gold)', color: 'var(--accent-ink)', fontFamily: 'var(--font-sans)',
+            fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
+          }}>
+            Montar pacote
+          </button>
+
+          {/* login / usuário — sempre no canto direito, isolado por um filete */}
           <button
             onClick={() => go(cliente ? 'conta' : 'entrar')}
             style={{
-              background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 0',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              padding: '4px 0 4px 20px', marginLeft: 4,
+              borderLeft: `1px solid ${line}`,
               display: 'flex', alignItems: 'center', gap: 7,
               fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500,
               color: (view === 'entrar' || view === 'conta') ? 'var(--gold-text)' : ink,
-              borderBottom: `1px solid ${(view === 'entrar' || view === 'conta') ? 'var(--gold)' : 'transparent'}`,
             }}
           >
             <span aria-hidden="true" style={{
@@ -79,15 +90,6 @@ export default function SiteNav({ view, go }) {
               {cliente ? cliente.nome.trim().charAt(0).toUpperCase() : '↪'}
             </span>
             {cliente ? cliente.nome.split(' ')[0] : 'Entrar'}
-          </button>
-
-          <ThemeToggle />
-          <button onClick={() => go('pacote')} style={{
-            padding: '10px 18px', borderRadius: 2, cursor: 'pointer', border: '1px solid var(--gold)',
-            background: 'var(--gold)', color: 'var(--accent-ink)', fontFamily: 'var(--font-sans)',
-            fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
-          }}>
-            Montar pacote
           </button>
         </nav>
       </div>

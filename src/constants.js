@@ -319,6 +319,14 @@ export const TRANS_INIT = [
     noivos: 'Gabriel Fontes & Marina Vasques', dataEvento: '2026-09-27',
     dataFechamento: '2026-07-15', limiteComparecimento: '2026-09-10',
     trajeConfidencial: true,
+    // senha que o casal usa para revelar o traje do noivo no portal (Área do cliente)
+    senhaRevelacao: 'marina2026',
+    // detalhamento da padronização por papel — mostrado nos cards do Portal do noivo
+    padronizacao: {
+      Noivo:    { corte: 'Slim · 2 botões', colete: 'Com colete', gravata: 'Laço em seda preta', lenco: 'Lenço dourado', nota: 'Acabamento cerimônia com vivo dourado na lapela.' },
+      Padrinho: { corte: 'Slim · 2 botões', colete: 'Sem colete',  gravata: 'Gravata azul-marinho', lenco: 'Lenço azul-marinho' },
+      Pai:      { corte: 'Slim · 2 botões', colete: 'Com colete',  gravata: 'Gravata grafite em seda', lenco: 'Lenço branco' },
+    },
     integrantes: [
       { nome: 'Gabriel Fontes',   documento: '232.333.434-35', produtoId: 2, tam: 'M',  papel: 'Noivo',    tamEntregue: 'M',
         numeroContrato: '1501', precoNegociado: 280, excecaoPreco: '', pagamento: 'Pago',     devolvido: false, avarias: '' },

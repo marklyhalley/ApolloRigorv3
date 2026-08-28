@@ -5,6 +5,7 @@ import { listPedidos, TIPO_LABEL } from '../store/pedidos';
 import { emailOk, telOk } from './siteData';
 import { fmt } from '../constants';
 import PortalNoivo from './PortalNoivo';
+import RastreioPedido from './RastreioPedido';
 
 const mono = 'var(--font-mono)';
 const dataHora = (ms) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -16,8 +17,8 @@ const STATUS_COR = {
   Recusado: 'var(--status-red-fg)',
 };
 
-// Área do cliente (perfil "noivo" de exemplo). Abas: Portal do noivo, Meus
-// pedidos e Meus dados, além dos atalhos para abrir novos pedidos.
+// Área do cliente (perfil "noivo" de exemplo). Abas: Portal do noivo, Pedidos
+// avulsos e Meus dados, além dos atalhos para abrir novos pedidos.
 const ABAS_VALIDAS = ['portal', 'pedidos', 'perfil'];
 
 export default function Conta({ go, arg }) {
@@ -32,13 +33,16 @@ export default function Conta({ go, arg }) {
   if (!sessao || sessao.tipo !== 'cliente') return null;
 
   const pacote = pacoteDaSessao(sessao);
+  // Pedidos avulsos = locação/compra individuais feitas pelo site. O pacote de
+  // casamento não entra aqui — ele vive no Portal do noivo.
   const meusPedidos = listPedidos().filter(
-    (p) => (p.cliente?.email || '').toLowerCase() === sessao.email.toLowerCase(),
+    (p) => (p.cliente?.email || '').toLowerCase() === sessao.email.toLowerCase()
+      && p.tipo !== 'locacao_padronizada',
   );
 
   const abas = [
     { key: 'portal', label: 'Portal do noivo' },
-    { key: 'pedidos', label: `Meus pedidos${meusPedidos.length ? ` · ${meusPedidos.length}` : ''}` },
+    { key: 'pedidos', label: `Pedidos avulsos${meusPedidos.length ? ` · ${meusPedidos.length}` : ''}` },
     { key: 'perfil', label: 'Meus dados' },
   ];
 
@@ -63,7 +67,7 @@ export default function Conta({ go, arg }) {
         </div>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 22 }}>
-          <Button onClick={() => go('colecao')}>Abrir novo pedido</Button>
+          <Button onClick={() => go('colecao')}>Abrir pedido avulso</Button>
           <Button variant="ghost" onClick={() => go('pacote')}>Montar pacote de casamento</Button>
         </div>
 
@@ -174,16 +178,24 @@ function EditarPerfil({ sessao }) {
 }
 
 function MeusPedidos({ pedidos, go }) {
+  const [sel, setSel] = useState(null);
+
+  // pedido aberto → rastreio embutido, sem sair da área do cliente
+  const aberto = sel && pedidos.find((p) => p.id === sel);
+  if (aberto) {
+    return <RastreioPedido pedido={aberto} onVoltar={() => setSel(null)} />;
+  }
+
   if (pedidos.length === 0) {
     return (
       <div style={{ border: `1px solid ${line}`, background: card }}>
         <Tape height={8} style={{ opacity: 0.5 }} />
         <div style={{ padding: '28px 24px' }}>
           <p style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 500, color: ink }}>
-            Você ainda não enviou pedidos por aqui.
+            Você ainda não tem pedidos avulsos.
           </p>
           <p style={{ margin: '8px 0 18px', fontSize: 13.5, color: sub, lineHeight: 1.6, maxWidth: '52ch' }}>
-            Ao abrir um pedido logado, ele aparece nesta lista com o protocolo e o andamento.
+            Locações e compras individuais feitas pelo site aparecem aqui com o protocolo e o andamento. Clique num pedido para ver o rastreio.
           </p>
           <Button onClick={() => go('colecao')}>Ver a coleção</Button>
         </div>
@@ -194,7 +206,7 @@ function MeusPedidos({ pedidos, go }) {
   return (
     <div style={{ display: 'grid', gap: 12 }}>
       {pedidos.map((p) => (
-        <button key={p.id} onClick={() => go('acompanhar', p.protocolo)} style={{
+        <button key={p.id} onClick={() => setSel(p.id)} style={{
           display: 'block', textAlign: 'left', width: '100%', cursor: 'pointer',
           border: `1px solid ${line}`, background: card, padding: '16px 18px', fontFamily: 'var(--font-sans)',
         }}>

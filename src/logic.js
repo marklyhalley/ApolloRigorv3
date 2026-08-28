@@ -139,6 +139,18 @@ export function comparecimentoPacote(trans) {
   return { total: integrantes.length, compareceram, faltam: integrantes.length - compareceram };
 }
 
+// pagamento em dia? ('Pago' ou 'Incluso no pacote' contam como quitado)
+export function integrantePago(i) {
+  return i.pagamento === 'Pago' || i.pagamento === 'Incluso no pacote';
+}
+
+// resumo de pagamentos do grupo — barra de progresso e filtros do Portal do noivo
+export function pagamentosPacote(trans) {
+  const integrantes = trans.integrantes || [];
+  const pagos = integrantes.filter(integrantePago).length;
+  return { total: integrantes.length, pagos, aPagar: integrantes.length - pagos };
+}
+
 // status do pacote na lista "Todos os pacotes": Grupo completo / N pendente(s) / Prazo vencido
 export function statusPacote(trans) {
   const { total, faltam } = comparecimentoPacote(trans);
