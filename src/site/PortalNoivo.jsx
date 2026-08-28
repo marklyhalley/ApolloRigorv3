@@ -5,7 +5,7 @@
 // só no protótipo (maker-hub/): barra de progresso de retirada, status de
 // pagamento por integrante, filtros, legenda, atributos da padronização e a
 // revelação do traje do noivo por senha. Renderiza sem Section/Wrap — é usado
-// dentro de uma aba da Área do cliente.
+// dentro do <Wrap> da página do casamento (src/site/Casamento.jsx).
 import { useState } from 'react';
 import { Tape, onImgError, ink, sub, muted, line, card, brass } from './ui';
 import { comparecimentoPacote, integranteCompareceu, integrantePago, pagamentosPacote } from '../logic';
@@ -42,7 +42,7 @@ function casaFiltro(i, filtro) {
   return true;
 }
 
-export default function PortalNoivo({ pacote, onVoltar }) {
+export default function PortalNoivo({ pacote }) {
   const integrantes = pacote.integrantes || [];
   const { total, compareceram, faltam } = comparecimentoPacote(pacote);
   const { pagos, aPagar } = pagamentosPacote(pacote);
@@ -63,19 +63,6 @@ export default function PortalNoivo({ pacote, onVoltar }) {
 
   return (
     <div>
-      {onVoltar && (
-        <button
-          onClick={onVoltar}
-          style={{
-            background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 0',
-            marginBottom: 18, fontFamily: mono, fontSize: 11, fontWeight: 600,
-            letterSpacing: '0.12em', textTransform: 'uppercase', color: sub,
-          }}
-        >
-          ← Voltar aos pedidos
-        </button>
-      )}
-
       {/* Cabeçalho do pacote */}
       <div style={{ border: `1px solid ${line}`, background: card }}>
         <Tape height={8} style={{ opacity: 0.5 }} />

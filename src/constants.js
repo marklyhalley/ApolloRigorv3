@@ -118,7 +118,7 @@ export const PRODUTOS_INIT = [
     foto: `${UNS}-1507679799987-c73779587ccf?w=480&h=640&fit=crop&q=80`,
     variantes: [{ tam: 'PP', qtd: 1 }, { tam: 'P', qtd: 2 }, { tam: 'M', qtd: 4 }, { tam: 'G', qtd: 2 }, { tam: 'GG', qtd: 0 }] },
   { id: 2, nome: 'Smoking Black Tie',       categoria: 'Terno',   colecao: 'Black Tie',      tecido: 'Lã Fria',   cor: 'Preto',         linha: 'Premium',      aluguel: 280, venda: 1200,
-    foto: 'https://mrmaximus.com.br/cdn/shop/files/Sb388a5abe7c4486f92913d127ec0b085B.webp?v=1754997603&width=800',
+    foto: '/produtos/smoking-black-tie.jpg',
     variantes: [{ tam: 'P', qtd: 1 }, { tam: 'M', qtd: 2 }, { tam: 'G', qtd: 2 }, { tam: 'GG', qtd: 1 }] },
   { id: 3, nome: 'Terno Casamento Marfim',  categoria: 'Terno',   colecao: 'Noivos Premium', tecido: 'Linho',     cor: 'Off-White',     linha: 'Premium',      aluguel: 220, venda: 1100,
     foto: `${UNS}-1583864697784-a0efc8379f70?w=480&h=640&fit=crop&q=80`,
